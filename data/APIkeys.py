@@ -1,0 +1,7 @@
+
+twitter_consumer_key = 'xrgSUEvZZAKLMYcRsMgm7VuN3'
+twitter_consumer_secret = '47dEXK8DoPxoWfMtIaZQFdOYJK50Vvxih4sKjaN85ZH7poK9hU'
+twitter_access_token_key = '2387326502-UNSYLTFSRZz5BDERfhiJutuhFzBlyNafo9BOTVG'
+twitter_access_token_secret = '8ezTaNhsqiZtq8sDkYjcwY5ZZM8lmloJT8aDORqUJuK3x'
+
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAAEcZLAEAAAAA69mfk36rbpDNfUP6Acga5JLvbK4%3DEut5R7KuLskB9jI9crQn70Zy7TrDaEJIMjN0Pz5CuM19u9jQqz'
