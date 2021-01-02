@@ -1,6 +1,8 @@
 import csv
 import os
 from datetime import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
 
 from data.APIkeys import twitter_consumer_key, twitter_consumer_secret, twitter_access_token_key, \
     twitter_access_token_secret
@@ -37,15 +39,25 @@ def writetwitterinfo(screen_name):
     f = open('data/twitterData.csv', 'a', newline='')
 
     if os.stat('data/twitterData.csv').st_size == 0:
-        csv.writer(f, delimiter=' ').writerow(['date',
+        csv.writer(f, delimiter=';').writerow(['date',
                                                'user',
                                                'followers',
                                                'tweets',
                                                'retweets'])
 
-    csv.writer(f, delimiter=' ').writerow([datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+    csv.writer(f, delimiter=';').writerow([datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                                            user.name,
                                            user.followers_count,
                                            tweets,
                                            retweets])
     f.close()
+
+
+def createGraph():
+    f = pd.read_csv('data/twitterData.csv', sep=';')
+    ax = f.plot(kind='line', x='date', y=['tweets', 'retweets'])
+    ax2 = f.plot(kind='line', x='date', y='followers', secondary_y=True, ax=ax)
+    ax.set_ylabel('Tweets/Retweets')
+    ax2.set_ylabel('Followers')
+    plt.tight_layout()
+    plt.show()
