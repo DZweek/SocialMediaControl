@@ -14,47 +14,60 @@ twitter_api = twitter.Api(consumer_key=twitter_consumer_key,
                           access_token_secret=twitter_access_token_secret)
 
 
-def getuser(screen_name):
+# Ophalen gebruikersinfo
+def getUser(screen_name):
     user = twitter_api.GetUser(screen_name=screen_name)
     return user
 
 
-def gettweets(user, screen_name):
+# Aangenomen dat er 3 typen timeline elementen zijn (tweets, retweets en replies)
+# Worden hier alleen de tweets opgehaald
+def getTweets(user, screen_name):
     timeline = twitter_api.GetUserTimeline(user_id=user.id, screen_name=screen_name, include_rts=False,
-                                           exclude_replies=False)
+                                           trim_user=True, exclude_replies=True)
     return len(timeline)
 
 
-def getretweets(user, screen_name, tweets):
+# Hier worden alle 3 de soorten berichten opgehaald.
+# Door er daarna de tweets vanaf te halen hou je de retweets en replies over
+def getRetweets(user, screen_name, tweets):
     timeline = twitter_api.GetUserTimeline(user_id=user.id, screen_name=screen_name, include_rts=True,
-                                           exclude_replies=True)
+                                           trim_user=True, exclude_replies=False)
     return len(timeline) - tweets
 
 
-def writetwitterinfo(screen_name):
-    user = getuser(screen_name=screen_name)
-    tweets = gettweets(user=user, screen_name=screen_name)
-    retweets = getretweets(user=user, screen_name=screen_name, tweets=tweets)
+# Wegschrijven van data evt aanmaken folders/csv bestanden
+def writeTwitterInfo(screen_name):
+    user = getUser(screen_name=screen_name)
+    tweets = getTweets(user=user, screen_name=screen_name)
+    retweets = getRetweets(user=user, screen_name=screen_name, tweets=tweets)
 
-    f = open('data/twitterData.csv', 'a', newline='')
+    path = 'data/{}'.format(screen_name[1:])
 
-    if os.stat('data/twitterData.csv').st_size == 0:
-        csv.writer(f, delimiter=';').writerow(['date',
-                                               'user',
-                                               'followers',
-                                               'tweets',
-                                               'retweets'])
+    if not os.path.exists(path):
+        os.mkdir(path)
 
-    csv.writer(f, delimiter=';').writerow([datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                                           user.name,
-                                           user.followers_count,
-                                           tweets,
-                                           retweets])
-    f.close()
+    file = open(path + '/twitterData.csv', 'a', newline='')
+
+    if os.stat('data/{}/twitterData.csv'.format(screen_name[1:])).st_size == 0:
+        csv.writer(file, delimiter=';').writerow(['date',
+                                                  'user',
+                                                  'followers',
+                                                  'tweets',
+                                                  'retweets'])
+
+    csv.writer(file, delimiter=';').writerow([datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                              user.name,
+                                              user.followers_count,
+                                              tweets,
+                                              retweets])
+    file.close()
 
 
-def createGraph():
-    f = pd.read_csv('data/twitterData.csv', sep=';')
+# Verwerken data in grafiek voor opgegeven gebruikersnaam
+def createGraph(screen_name):
+    f = pd.read_csv('data/{}/twitterData.csv'.format(screen_name[1:]), sep=';')
+    f['date'] = pd.to_datetime(f['date'])
     ax = f.plot(kind='line', x='date', y=['tweets', 'retweets'])
     ax2 = f.plot(kind='line', x='date', y='followers', secondary_y=True, ax=ax)
     ax.set_ylabel('Tweets/Retweets')
